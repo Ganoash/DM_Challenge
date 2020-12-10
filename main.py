@@ -34,13 +34,14 @@ ratings_description = pd.read_csv(ratings_file, delimiter=';',
                                   names=['userID', 'movieID', 'rating'])
 predictions_description = pd.read_csv(predictions_file, delimiter=';', names=['userID', 'movieID'], header=None)
 
+utility_matrix: pd.DataFrame = \
+        ratings_description.pivot(index='userID', columns='movieID', values='rating')
 
 #####
 ##
 # COLLABORATIVE FILTERING
 ##
 #####
-
 def predict_collaborative_filtering(movies, users, ratings, predictions):
     # TO COMPLETE
 
@@ -101,5 +102,5 @@ with open(submission_file, 'w') as submission_writer:
     predictions = [','.join(row) for row in predictions]
     predictions = 'Id,Rating\n' + '\n'.join(predictions)
 
-    # Writes it dowmn
+    # Writes it down
     submission_writer.write(predictions)
