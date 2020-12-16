@@ -1,4 +1,3 @@
-import numpy as np
 import pandas as pd
 from main import utility_matrix, ratings_description
 
