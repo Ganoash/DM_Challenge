@@ -38,23 +38,16 @@ utility_matrix: pd.DataFrame = \
     ratings_description.pivot(index='userID', columns='movieID', values='rating')
 
 
+utility_matrix.loc[:, set(movies_description['movieID'].to_numpy().tolist()).difference(set(utility_matrix.columns.to_numpy().tolist()))] = 0
+print(utility_matrix.shape)
+
 #####
 ##
 # COLLABORATIVE FILTERING
 ##
 #####
 def predict_collaborative_filtering(utility):
-    to_parse = run(utility).values.tolist()
-    predictions = {}
-    for index, item in enumerate(to_parse):
-        predictions[index] = item[0]
-    predictions = pd.DataFrame(predictions.values(), index=predictions.keys())
-    ret_value = pd.DataFrame(predictions_description["movieID"]).applymap(lambda x: predictions.loc[x].item())
-    ret_value["index"] = ret_value.index
-    ret_index = ret_value["index"]+1
-    ret_value = ret_value["movieID"]
-
-    return zip(ret_index.values.astype(int).tolist(), ret_value.values.tolist())
+    return run(utility, predictions_description)
 
 
 #####
