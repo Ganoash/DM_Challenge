@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 import os.path
-from random import randint
+from collaborative_filtering import run
 
 # -*- coding: utf-8 -*-
 """
@@ -35,17 +35,19 @@ ratings_description = pd.read_csv(ratings_file, delimiter=';',
 predictions_description = pd.read_csv(predictions_file, delimiter=';', names=['userID', 'movieID'], header=None)
 
 utility_matrix: pd.DataFrame = \
-        ratings_description.pivot(index='userID', columns='movieID', values='rating')
+    ratings_description.pivot(index='userID', columns='movieID', values='rating')
+
+
+utility_matrix.loc[:, set(movies_description['movieID'].to_numpy().tolist()).difference(set(utility_matrix.columns.to_numpy().tolist()))] = 0
+print(utility_matrix.shape)
 
 #####
 ##
 # COLLABORATIVE FILTERING
 ##
 #####
-def predict_collaborative_filtering(movies, users, ratings, predictions):
-    # TO COMPLETE
-
-    pass
+def predict_collaborative_filtering(utility):
+    return run(utility, predictions_description)
 
 
 #####
@@ -54,10 +56,35 @@ def predict_collaborative_filtering(movies, users, ratings, predictions):
 ##
 #####
 
-def predict_latent_factors(movies, users, ratings, predictions):
-    # TO COMPLETE
+def predict_latent_factors(utility):
+    learning_rate = 0.05
+    k = 2
 
-    pass
+    np.random.seed(42)
+    Q = np.random.uniform(-1, 1, (utility.shape[0], k))
+    P = np.random.uniform(-1, 1, (k, utility.shape[1]))
+    div = (utility.shape[0] * utility.shape[1]) - np.isnan(utility).sum()
+    RMSE = np.sqrt(((np.nan_to_num(utility - np.matmul(Q, P), 0) ** 2).sum()) / div)
+    print(f"Starting RMSE: {RMSE}")
+
+    for epoch in range(1000):
+        prediction = np.matmul(Q, P)
+        curr_error = np.nan_to_num(utility_matrix - prediction, 0)
+        Q_update = np.zeros(Q.shape)
+        for i in range(len(Q_update)):
+            for curr_k in range(k):
+                Q_delta = (-2 * np.dot(P[curr_k, :], curr_error[i])) / np.isnan(utility.iloc[i]).sum()
+                Q_update[i, curr_k] = learning_rate * Q_delta
+
+        P_update = np.zeros(P.shape)
+        for i in range(P_update.shape[1]):
+            for curr_k in range(k):
+                P_delta = (-2 * np.dot(Q[:, curr_k], curr_error[:, i])) / np.isnan(utility.iloc[:, i]).sum()
+                P_update[curr_k, i] = learning_rate * P_delta
+
+        Q -= Q_update
+        P -= P_update
+    return prediction
 
 
 #####
@@ -66,10 +93,8 @@ def predict_latent_factors(movies, users, ratings, predictions):
 ##
 #####
 
-def predict_final(movies, users, ratings, predictions):
-    # TO COMPLETE
-
-    pass
+def predict_final(prediction, utility):
+    return predict_collaborative_filtering(utility)
 
 
 #####
@@ -79,12 +104,6 @@ def predict_final(movies, users, ratings, predictions):
 ##
 #####
 
-# By default, predicted rate is a random classifier
-def predict_random(movies, users, ratings, predictions):
-    number_predictions = len(predictions)
-
-    return [[idx, randint(1, 5)] for idx in range(1, number_predictions + 1)]
-
 
 #####
 ##
@@ -93,7 +112,7 @@ def predict_random(movies, users, ratings, predictions):
 #####
 
 # //!!\\ TO CHANGE by your prediction function
-predictions = predict_random(movies_description, users_description, ratings_description, predictions_description)
+predictions = predict_final(predictions_description, utility_matrix)
 
 # Save predictions, should be in the form 'list of tuples' or 'list of lists'
 with open(submission_file, 'w') as submission_writer:
