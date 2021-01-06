@@ -1,6 +1,6 @@
 import numpy as np
 import pandas as pd
-import os.path
+from year_prediction import run_year
 from collaborative_filtering import run
 
 # -*- coding: utf-8 -*-
@@ -38,8 +38,10 @@ utility_matrix: pd.DataFrame = \
     ratings_description.pivot(index='userID', columns='movieID', values='rating')
 
 
-utility_matrix.loc[:, set(movies_description['movieID'].to_numpy().tolist()).difference(set(utility_matrix.columns.to_numpy().tolist()))] = 0
+utility_matrix.loc[:, set(movies_description['movieID'].to_numpy().tolist()).difference(set(utility_matrix.columns.to_numpy().tolist()))] = np.nan
 print(utility_matrix.shape)
+
+run_year(movies_description, utility_matrix, ratings_description)
 
 #####
 ##
