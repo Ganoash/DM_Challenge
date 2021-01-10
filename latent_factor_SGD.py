@@ -6,8 +6,7 @@
 
 import numpy as np
 import pandas as pd
-import os.path
-from random import randint
+import matplotlib.pyplot as plt
 
 # -*- coding: utf-8 -*-
 """
@@ -103,7 +102,7 @@ print(f"Final RMSE: {RMSE}")
 # In[40]:
 
 
-import matplotlib.pyplot as plt
+
 plt.figure(figsize=(30, 10))
 plt.title("Learning curve - SGD Latent Factor Model", fontsize=20)
 plt.xlabel("epoch", fontsize=20)
