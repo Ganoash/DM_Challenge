@@ -21,9 +21,9 @@ def movie_bias():
 def overall_bias():
     return ratings_description["rating"].mean()
 
+if __name__ == "__main__":    
+    user = user_bias()
+    movie = movie_bias()
 
-user = user_bias()
-movie = movie_bias()
-
-print(user_bias())
-print(movie_bias())
+    print(user_bias())
+    print(movie_bias())

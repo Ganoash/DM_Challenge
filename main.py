@@ -39,7 +39,6 @@ utility_matrix: pd.DataFrame = \
 
 
 utility_matrix.loc[:, set(movies_description['movieID'].to_numpy().tolist()).difference(set(utility_matrix.columns.to_numpy().tolist()))] = 0
-print(utility_matrix.shape)
 
 #####
 ##
@@ -104,22 +103,22 @@ def predict_final(prediction, utility):
 ##
 #####
 
+if __name__ == "__main__":    
+    #####
+    ##
+    # SAVE RESULTS
+    ##
+    #####
 
-#####
-##
-# SAVE RESULTS
-##
-#####
+    # //!!\\ TO CHANGE by your prediction function
+    predictions = predict_final(predictions_description, utility_matrix)
 
-# //!!\\ TO CHANGE by your prediction function
-predictions = predict_final(predictions_description, utility_matrix)
+    # Save predictions, should be in the form 'list of tuples' or 'list of lists'
+    with open(submission_file, 'w') as submission_writer:
+        # Formates data
+        predictions = [map(str, row) for row in predictions]
+        predictions = [','.join(row) for row in predictions]
+        predictions = 'Id,Rating\n' + '\n'.join(predictions)
 
-# Save predictions, should be in the form 'list of tuples' or 'list of lists'
-with open(submission_file, 'w') as submission_writer:
-    # Formates data
-    predictions = [map(str, row) for row in predictions]
-    predictions = [','.join(row) for row in predictions]
-    predictions = 'Id,Rating\n' + '\n'.join(predictions)
-
-    # Writes it down
-    submission_writer.write(predictions)
+        # Writes it down
+        submission_writer.write(predictions)
