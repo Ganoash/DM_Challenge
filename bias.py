@@ -19,3 +19,10 @@ def movie_bias():
 # returns an integer with the average value of ratings
 def overall_bias():
     return main.ratings_description["rating"].mean()
+
+if __name__ == "__main__":    
+    user = user_bias()
+    movie = movie_bias()
+
+    print(user_bias())
+    print(movie_bias())

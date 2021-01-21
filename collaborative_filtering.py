@@ -121,3 +121,4 @@ def lsh(utility: pd.DataFrame):
 def run(utility_matrix, predictions):
     return create_prediction_matrices(create_similarity_matrix(utility_matrix),
                                       create_similarity_matrix(utility_matrix.T), utility_matrix, 5, predictions)
+
