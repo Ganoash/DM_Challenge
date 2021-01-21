@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
 import item_feature_prediction
+import user_feature_prediction
 from collaborative_filtering import run
 
 # -*- coding: utf-8 -*-
@@ -41,8 +42,7 @@ utility_matrix: pd.DataFrame = \
 utility_matrix.loc[:, set(movies_description['movieID'].to_numpy().tolist()).difference(set(utility_matrix.columns.to_numpy().tolist()))] = np.nan
 print(utility_matrix.shape)
 
-print(item_feature_prediction.item_feature_bias(movies_description, utility_matrix, "year", 231))
-print(item_feature_prediction.user_feature_bias(movies_description, utility_matrix, "year", 1, 232))
+item_feature_prediction.item_bias_matrix(movies_description, utility_matrix)
 
 
 #####
