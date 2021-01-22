@@ -1,16 +1,17 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[1]:
+# In[78]:
 
 
 from collaborative_filtering import run
 
-def predict_collaborative_filtering(utility):
+#def predict_collaborative_filtering(utility):
+def predict_final(utility):
     return run(utility, predictions_description)
 
 
-# In[4]:
+# In[79]:
 
 
 import numpy as np
@@ -43,76 +44,30 @@ utility_matrix.loc[:, set(movies_description['movieID'].to_numpy().tolist()).dif
 print(utility_matrix.shape)
 
 
-# In[12]:
+# In[81]:
 
 
 train_predictions = ratings_description[["userID", "movieID"]]
 
 
-# In[16]:
+# In[82]:
 
 
 get_ipython().run_cell_magic('time', '', 'cf_train_predictions = dict(run(utility_matrix, train_predictions))')
 
 
-# In[22]:
+# In[83]:
 
 
-##### Construct Utility Matrix ####### 
-R = np.zeros((len(movies_description), len(users_description)))
+from numpy import genfromtxt
 
-for user, movie, rating in ratings_description.values:
-    R[movie-1, user-1] = rating
-
-R[R==0] = np.nan
-print(f"Shape of Utility matrix is (movies, users): {R.shape}")
-
-#### LATENT FACTORS WITH REGULARIZATION ####
-#### LATENT FACTORS HYPERPARAMETERS ####
-from tqdm import tqdm_notebook as tqdm
-
-EPOCHS = 1000
-LEARNING_RATE = 0.05 # == nu
-LAMBDA = 0.01
-K = 2 # number of factors to work with.
-
-np.random.seed(42)
-Q = np.random.uniform(-1, 1, (R.shape[0], K))
-P = np.random.uniform(-1, 1, (K, R.shape[1]))
-div = (R.shape[0] * R.shape[1]) - np.isnan(R).sum()
-RMSE = np.sqrt(((np.nan_to_num(R - np.matmul(Q, P), 0)**2).sum())/div)
-print(f"Starting RMSE: {RMSE}")
-
-objectives = []
-
-for epoch in tqdm(range(1000)):
-    R_pred = np.matmul(Q,P)
-    curr_error = np.nan_to_num(R - R_pred, 0)
-    Q_update = np.zeros(Q.shape)
-    for i in range(len(Q_update)):
-        for curr_k in range(K):
-            Q_delta =(-2 * np.dot(P[curr_k, :], curr_error[i]))/np.isnan(R[i]).sum()
-            Q_update[i, curr_k] = LEARNING_RATE * (Q_delta + LAMBDA*Q[i, curr_k])
-
-    P_update = np.zeros(P.shape)
-    for i in range(P_update.shape[1]):
-        for curr_k in range(K):
-            P_delta =(-2 * np.dot(Q[:, curr_k], curr_error[:, i]))/np.isnan(R[:, i]).sum()
-            P_update[curr_k, i] = LEARNING_RATE * (P_delta + LAMBDA*P[curr_k, i])
-
-    Q -= Q_update
-    P -= P_update
-    
-    RMSE_i = np.sqrt(((np.nan_to_num(R - np.matmul(Q, P), 0)**2).sum())/div)
-    print(f"RMSE {epoch}: {RMSE_i}")
-    objectives.append([epoch, RMSE_i])
+# Loaded from Latent_Factors_Basic.ipynb
+Q_lf = genfromtxt("./latent_factors/Q.csv")
+P_lf = genfromtxt("./latent_factors/P.csv")
+R_pred = np.matmul(Q_lf,P_lf)
 
 
-RMSE = np.sqrt(((np.nan_to_num(R - np.matmul(Q, P), 0)**2).sum())/div)
-print(f"Final RMSE: {RMSE}")
-
-
-# In[26]:
+# In[84]:
 
 
 #### CREATE SUBMISSION ####
@@ -121,7 +76,7 @@ for i, [user,movie, rating] in enumerate(ratings_description.values):
     lf_train_predictions.append([i+1, R_pred[movie-1,user-1]])
 
 
-# In[39]:
+# In[85]:
 
 
 labels = ratings_description.values[:, -1]
@@ -130,32 +85,14 @@ lf_train = np.array(lf_train_predictions)
 cf_train = np.array([[k,v] for k, v in cf_train_predictions.items()])
 
 
-# In[40]:
-
-
-labels
-
-
-# In[41]:
-
-
-lf_train
-
-
-# In[42]:
-
-
-cf_train
-
-
-# In[43]:
+# In[86]:
 
 
 def rmse(actual, predicted):
     return np.sqrt(((actual-predicted)**2).sum()/len(actual))
 
 
-# In[50]:
+# In[87]:
 
 
 pred_curve = []
@@ -165,13 +102,7 @@ for a in np.arange(0.0, 1.0, 0.01):
 pred_curve = np.array(pred_curve)
 
 
-# In[51]:
-
-
-pred_curve
-
-
-# In[52]:
+# In[88]:
 
 
 import matplotlib.pyplot as plt
@@ -179,5 +110,5 @@ plt.figure(figsize=(30, 10))
 plt.title("Ensemble Model prediction curve", fontsize=20)
 plt.xlabel("a", fontsize=20)
 plt.ylabel("RMSE", fontsize=25)
-plt.plot(pred_curve[:, 0], pred_curve[:, 1])      
+plt.plot(pred_curve[:, 0], pred_curve[:, 1])
 
