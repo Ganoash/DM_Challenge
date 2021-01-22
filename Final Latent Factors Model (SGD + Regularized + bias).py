@@ -160,15 +160,15 @@ RMSE = np.sqrt(((np.nan_to_num(R - R_pred_post, 0) ** 2).sum()) / div)
 print(f"Final RMSE: {RMSE}")
 
 
-Path("./lf_bias2/").mkdir(parents=True, exist_ok=True)
+Path("./lf_bias/").mkdir(parents=True, exist_ok=True)
 
 
-savetxt("lf_bias2/Q.csv", Q)
-savetxt("lf_bias2/P.csv", P)
-savetxt("lf_bias2/moviebias.csv", movie_bias)
-savetxt("lf_bias2/userbias.csv", user_bias)
+savetxt("lf_bias/Q.csv", Q)
+savetxt("lf_bias/P.csv", P)
+savetxt("lf_bias/moviebias.csv", movie_bias)
+savetxt("lf_bias/userbias.csv", user_bias)
 
-savetxt("lf_bias2/objectives.csv", bias_learning_curve)
+savetxt("lf_bias/objectives.csv", bias_learning_curve)
 
 
 import matplotlib.pyplot as plt
