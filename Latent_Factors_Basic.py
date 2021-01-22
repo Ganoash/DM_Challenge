@@ -6,6 +6,8 @@ import numpy as np
 import pandas as pd
 import os.path
 from random import randint
+from numpy import savetxt
+from pathlib import Path
 
 ratings_file = "./data/ratings.csv"
 predictions_file = "./data/predictions.csv"
@@ -72,9 +74,6 @@ for epoch in range(EPOCHS):
 RMSE = np.sqrt(((np.nan_to_num(R - np.matmul(Q, P), 0) ** 2).sum()) / div)
 print(f"Final RMSE: {RMSE}")
 
-
-from numpy import savetxt
-from pathlib import Path
 
 Path("./latent_factors/").mkdir(parents=True, exist_ok=True)
 
