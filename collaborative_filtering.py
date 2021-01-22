@@ -29,7 +29,7 @@ outputs the prediction in a list format so it can be written to a file.
 
 
 def create_prediction_matrices(item_similarity: pd.DataFrame, user_similarity: pd.DataFrame, utility: pd.DataFrame,
-                             k: int, prediction_file: pd.DataFrame):
+                               k: int, prediction_file: pd.DataFrame):
     # create prediction matrices from similarity matrices
     item_prediction = create_prediction_matrix(item_similarity, utility.mean(axis=0).fillna(0), k)
     user_prediction = create_prediction_matrix(user_similarity, utility.mean(axis=1).fillna(0), k)
@@ -46,8 +46,6 @@ def create_prediction_matrices(item_similarity: pd.DataFrame, user_similarity: p
     for index, user in enumerate(user_prediction.values):
         user_dict[index + 1] = (1 - l1) * user[0]
 
-    print(item_dict)
-    print(user_dict)
     # take element-wise addition of items and users
     ret_value = pd.DataFrame(prediction_file["movieID"]).applymap(lambda x: item_dict[x]).to_numpy() + pd.DataFrame(
         prediction_file["userID"]).applymap(lambda x: user_dict[x]).to_numpy()
@@ -62,10 +60,10 @@ def create_prediction_matrices(item_similarity: pd.DataFrame, user_similarity: p
 
     return zip(ret_index, ret_value)
 
+
 """
 creates prediction matrix based on a similarity matrix and a list of means. K value indicates how many similar items you want to consider
 """
-
 
 
 def create_prediction_matrix(similarity_matrix: pd.DataFrame, means: pd.DataFrame, k: int):
@@ -85,7 +83,9 @@ outputs the cosine similarity between all rows
 
 
 def create_similarity_matrix(utility: pd.DataFrame):
-    utility = utility.fillna(0)
+    #subtract row means
+    utility = (utility - utility.mean(axis=0)).fillna(0)
+
     # base similarity matrix (all dot products)
     # replace this with A.dot(A.T).toarray() for sparse representation
     similarity = np.dot(utility.T, utility)
@@ -120,4 +120,5 @@ def lsh(utility: pd.DataFrame):
 
 def run(utility_matrix, predictions):
     return create_prediction_matrices(create_similarity_matrix(utility_matrix),
-                                    create_similarity_matrix(utility_matrix.T), utility_matrix, 50, predictions)
+                                      create_similarity_matrix(utility_matrix.T), utility_matrix, 5, predictions)
+

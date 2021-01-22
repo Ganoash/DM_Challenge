@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
-import os.path
+import item_feature_prediction
+import user_feature_prediction
 from collaborative_filtering import run
 
 # -*- coding: utf-8 -*-
@@ -37,8 +38,8 @@ predictions_description = pd.read_csv(predictions_file, delimiter=';', names=['u
 utility_matrix: pd.DataFrame = \
     ratings_description.pivot(index='userID', columns='movieID', values='rating')
 
+item_feature_prediction.item_bias_matrix(movies_description, utility_matrix)
 
-utility_matrix.loc[:, set(movies_description['movieID'].to_numpy().tolist()).difference(set(utility_matrix.columns.to_numpy().tolist()))] = 0
 
 #####
 ##
