@@ -29,10 +29,6 @@ R
 
 
 # In[19]:
-
-
-from tqdm import tqdm_notebook as tqdm
-
 EPOCHS = 1500
 LEARNING_RATE = 0.00002 # == nu
 LAMBDA = 0.2
@@ -48,7 +44,7 @@ RMSE = np.sqrt(((np.nan_to_num(R - np.matmul(Q, P), 0)**2).sum())/div)
 print(f"Starting RMSE: {RMSE}")
 
 
-for epoch in tqdm(range(EPOCHS)):
+for epoch in range(EPOCHS):
     R_pred = np.matmul(Q,P)
     curr_error = np.nan_to_num(R - R_pred, 0)
     Q_update = np.zeros(Q.shape)

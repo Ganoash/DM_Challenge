@@ -30,9 +30,6 @@ R
 
 # In[9]:
 
-
-from tqdm.auto import tqdm
-
 EPOCHS = 200
 LEARNING_RATE = 0.00002
 LAMBDA = 0.2
@@ -43,15 +40,15 @@ np.random.seed(42)
 
 ratings = ratings_description.values.copy()
 ratings[:, 0:2] = ratings[:, 0:2] - 1
-# Q = np.random.uniform(-1, 1, (R.shape[0], K)) # movies
-# P = np.random.uniform(-1, 1, (K, R.shape[1])) # users
-# sgd_learning_curve = []
+Q = np.random.uniform(-1, 1, (R.shape[0], K)) # movies
+P = np.random.uniform(-1, 1, (K, R.shape[1])) # users
+sgd_learning_curve = []
 
 div = (R.shape[0] * R.shape[1]) - np.isnan(R).sum()
 RMSE = np.sqrt(((np.nan_to_num(R - np.matmul(Q, P), 0)**2).sum())/div)
 print(f"Starting RMSE: {RMSE}")
 
-for epoch in tqdm(range(EPOCHS)):
+for epoch in range(EPOCHS):
     np.random.shuffle(ratings) # inplace shuffle of matrix
     R_pred = np.matmul(Q, P)
     curr_error = 2*np.nan_to_num(R - R_pred, 0)

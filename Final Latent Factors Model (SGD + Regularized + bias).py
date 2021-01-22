@@ -80,11 +80,6 @@ objective_bias = genfromtxt("./lf_bias/objectives.csv")
 
 # ## Latent Factor (SGD + biases + regularization)
 
-# In[81]:
-
-
-from tqdm.auto import tqdm
-
 EPOCHS = 300
 LEARNING_RATE = 0.00002
 LEARNING_RATE_bias = 0.00002
@@ -115,34 +110,35 @@ movie_bias = [np.mean(movie_ratings[movie_ratings!=0]) for movie_ratings in tmp_
 overall_bias = np.ones((num_movies, num_users)) * overall_bias
 
 div = (R.shape[0] * R.shape[1]) - np.isnan(R).sum()
-RMSE = np.sqrt(((np.nan_to_num(R - np.matmul(Q, P), 0)**2).sum())/div)
+R_pred_pre = overall_bias + np.tile(user_bias, (num_movies, 1)) +  np.tile(movie_bias, (num_users, 1)).T + np.matmul(Q, P)
+RMSE = np.sqrt(((np.nan_to_num(R - R_pred_pre, 0)**2).sum())/div)
 print(f"Starting RMSE: {RMSE}")
 
-for epoch in tqdm(range(EPOCHS)):
+for epoch in range(EPOCHS):
     np.random.shuffle(ratings) # inplace shuffle of matrix
-    for i, (userID, movieID, rating) in enumerate(ratings):
-        R_pred = overall_bias[movieID, userID] + user_bias[userID] +  movie_bias[movieID] + np.matmul(Q[movieID, :], P[:, userID])
-        curr_error = 2*(R[movieID, userID] - R_pred)
-
-        q_update = LEARNING_RATE * (curr_error*P[:, userID] - LAMBDA*Q[movieID, :])
+    R_pred = overall_bias + np.tile(user_bias, (num_movies, 1)) +  np.tile(movie_bias, (num_users, 1)).T + np.matmul(Q, P)
+    curr_error = 2*np.nan_to_num(R - R_pred, 0)
+    for userID, movieID, rating in ratings:
+        q_update = LEARNING_RATE * (curr_error[movieID, userID]*P[:, userID] - LAMBDA*Q[movieID, :])
         Q[movieID, :] = Q[movieID, :] + q_update
 
-        p_update = LEARNING_RATE * (curr_error*Q[movieID, :] - LAMBDA*P[:, userID])
+        p_update = LEARNING_RATE * (curr_error[movieID, userID]*Q[movieID, :] - LAMBDA*P[:, userID])
         P[:, userID] = P[:, userID] + p_update
         
-        movie_bias_update = LEARNING_RATE_bias * (curr_error - LAMBDA_bias*movie_bias[movieID])
+        movie_bias_update = LEARNING_RATE * (curr_error[movieID,userID] - LAMBDA_bias*movie_bias[movieID])
         movie_bias[movieID] = movie_bias[movieID] + movie_bias_update
         
-        user_bias_update = LEARNING_RATE_bias * (curr_error - LAMBDA_bias*user_bias[userID])
+        user_bias_update = LEARNING_RATE * (curr_error[movieID, userID] - LAMBDA_bias*user_bias[userID])
         user_bias[userID] = user_bias[userID] + user_bias_update
-        if i % 100 == 0:
-            R_pred_post = overall_bias + np.tile(user_bias, (num_movies, 1)) +  np.tile(movie_bias, (num_users, 1)).T + np.matmul(Q, P)
-            RMSE_i = np.sqrt(((np.nan_to_num(R - R_pred_post, 0)**2).sum())/div)
-            bias_learning_curve.append([epoch+(i/len(ratings)), RMSE_i])
-            print(f"RMSE {bias_learning_curve[-1]}")
+    
+    R_pred_post = overall_bias + np.tile(user_bias, (num_movies, 1)) +  np.tile(movie_bias, (num_users, 1)).T + np.matmul(Q, P)
+    RMSE_i = np.sqrt(((np.nan_to_num(R - R_pred_post, 0)**2).sum())/div)
+    print(f"RMSE {epoch}: {RMSE_i}")
+    bias_learning_curve.append([epoch, RMSE_i])
 
 
-RMSE = np.sqrt(((np.nan_to_num(R - np.matmul(Q, P), 0)**2).sum())/div)
+R_pred_post = overall_bias + np.tile(user_bias, (num_movies, 1)) +  np.tile(movie_bias, (num_users, 1)).T + np.matmul(Q, P)
+RMSE = np.sqrt(((np.nan_to_num(R - R_pred_post, 0)**2).sum())/div)
 print(f"Final RMSE: {RMSE}")
 
 
@@ -176,15 +172,6 @@ plt.plot(objective_lf[:, 0], objective_lf[:, 1], label="'Normal' Latent Factor M
 plt.plot(objective_sgd[:190, 0], objective_sgd[:190, 1], label="Latent Factor SGD + Regularization")
 plt.plot(objective_bias[:, 0], objective_bias[:, 1], label="Latent Factor SGD + Regularization + bias")
 fig = plt.legend(loc="upper right", prop={'size': 20})
-
-
-# In[92]:
-
-
-)
-
-
-# In[68]:
 
 
 #### CREATE SUBMISSION ####

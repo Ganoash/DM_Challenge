@@ -50,15 +50,6 @@ print(utility_matrix.shape)
 train_predictions = ratings_description[["userID", "movieID"]]
 
 
-# In[82]:
-
-
-get_ipython().run_cell_magic('time', '', 'cf_train_predictions = dict(run(utility_matrix, train_predictions))')
-
-
-# In[83]:
-
-
 from numpy import genfromtxt
 
 # Loaded from Latent_Factors_Basic.ipynb
