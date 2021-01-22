@@ -28,19 +28,27 @@ To know more about the expectations, please refer to the guidelines.
 ##
 #####
 
-#Where data is located
-movies_file = './data/movies.csv'
-users_file = './data/users.csv'
-ratings_file = './data/ratings.csv'
-predictions_file = './data/predictions.csv'
-submission_file = './data/final-submission.csv'
+# Where data is located
+movies_file = "./data/movies.csv"
+users_file = "./data/users.csv"
+ratings_file = "./data/ratings.csv"
+predictions_file = "./data/predictions.csv"
+submission_file = "./data/final-submission.csv"
 
 
 # Read the data using pandas
-movies_description = pd.read_csv(movies_file, delimiter=';', names=['movieID', 'year', 'movie'])
-users_description = pd.read_csv(users_file, delimiter=';', names=['userID', 'gender', 'age', 'profession'])
-ratings_description = pd.read_csv(ratings_file, delimiter=';', names=['userID', 'movieID', 'rating'])
-predictions_description = pd.read_csv(predictions_file, delimiter=';', names=['userID', 'movieID'])
+movies_description = pd.read_csv(
+    movies_file, delimiter=";", names=["movieID", "year", "movie"]
+)
+users_description = pd.read_csv(
+    users_file, delimiter=";", names=["userID", "gender", "age", "profession"]
+)
+ratings_description = pd.read_csv(
+    ratings_file, delimiter=";", names=["userID", "movieID", "rating"]
+)
+predictions_description = pd.read_csv(
+    predictions_file, delimiter=";", names=["userID", "movieID"]
+)
 
 
 #####
@@ -58,9 +66,10 @@ def predict(movies, users, ratings, predictions):
     Here we simply load in the artifacts for the the Q, P and biases to do the predictions.
     """
     from numpy import genfromtxt
+
     Q = genfromtxt("./lf_bias/Q.csv")
     P = genfromtxt("./lf_bias/P.csv")
-    overall_bias = ratings['rating'].mean()
+    overall_bias = ratings["rating"].mean()
     user_bias = genfromtxt("./lf_bias/userbias.csv")
     movie_bias = genfromtxt("./lf_bias/moviebias.csv")
     submission = []
@@ -80,16 +89,21 @@ if __name__ == "__main__":
     ##
     ## SAVE RESULTS
     ##
-    #####    
+    #####
     # //!!\\ TO CHANGE by your prediction function
-    predictions = predict(movies_description, users_description, ratings_description, predictions_description)
+    predictions = predict(
+        movies_description,
+        users_description,
+        ratings_description,
+        predictions_description,
+    )
 
-    #Save predictions, should be in the form 'list of tuples' or 'list of lists'
-    with open(submission_file, 'w') as submission_writer:
-        #Formates data
+    # Save predictions, should be in the form 'list of tuples' or 'list of lists'
+    with open(submission_file, "w") as submission_writer:
+        # Formates data
         predictions = [map(str, row) for row in predictions]
-        predictions = [','.join(row) for row in predictions]
-        predictions = 'Id,Rating\n'+'\n'.join(predictions)
-        
-        #Writes it dowmn
+        predictions = [",".join(row) for row in predictions]
+        predictions = "Id,Rating\n" + "\n".join(predictions)
+
+        # Writes it dowmn
         submission_writer.write(predictions)
