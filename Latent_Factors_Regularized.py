@@ -1,13 +1,14 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[18]:
 
 
 import numpy as np
 import pandas as pd
 import os.path
 from random import randint
+from numpy import savetxt
+from pathlib import Path
 
 ratings_file = './data/ratings.csv'
 predictions_file = './data/predictions.csv'
@@ -25,16 +26,14 @@ for user, movie, rating in ratings_description.values:
 
 R[R==0] = np.nan
 print(f"Shape of Utility matrix is (movies, users): {R.shape}")
-R
 
 
-# In[19]:
+
 EPOCHS = 1500
 LEARNING_RATE = 0.00002 # == nu
 LAMBDA = 0.2
 K = 2 # number of factors to work with.
 
-# np.random.seed(42)
 Q = np.random.uniform(-1, 1, (R.shape[0], K))
 P = np.random.uniform(-1, 1, (K, R.shape[1]))
 regularization_learning_curve = []
@@ -71,11 +70,6 @@ RMSE = np.sqrt(((np.nan_to_num(R - np.matmul(Q, P), 0)**2).sum())/div)
 print(f"Final RMSE: {RMSE}")
 
 
-# In[9]:
-
-
-from numpy import savetxt
-from pathlib import Path
 
 Path("./lf_reg/").mkdir(parents=True, exist_ok=True)
 
@@ -84,8 +78,6 @@ savetxt("lf_reg/Q.csv", Q)
 savetxt("lf_reg/P.csv", P)
 savetxt("lf_reg/objectives.csv", regularization_learning_curve)
 
-
-# In[ ]:
 
 
 #### CREATE SUBMISSION ####
